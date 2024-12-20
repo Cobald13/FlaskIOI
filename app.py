@@ -15,7 +15,20 @@ db = client['IOI']  # Replace with your database name
 painters_collection = db['Slikarji']  # Replace with your collection name
 
 # Load the pre-trained model
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1WiuO_akiNN2YOVrW52Q4G1yNqbkleOlD"
 MODEL_PATH = 'painting_recognition_model.h5'
+
+# Download the model if it's not already cached locally
+if not os.path.exists(MODEL_PATH):
+    print("Downloading model from Google Drive...")
+    response = requests.get(MODEL_URL)
+    if response.status_code == 200:
+        with open(MODEL_PATH, "wb") as f:
+            f.write(response.content)
+        print("Model downloaded and saved.")
+    else:
+        print("Failed to download the model. Status code:", response.status_code)
+        
 model = tf.keras.models.load_model(MODEL_PATH)
 
 # **CLASS_TO_ID_MAP**
