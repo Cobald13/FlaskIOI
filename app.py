@@ -9,6 +9,7 @@ import requests
 
 app = Flask(__name__)
 CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://reactioi.onrender.com"}})
 
 # MongoDB Atlas connection string
 client = MongoClient("mongodb+srv://Cobald13:Mp5K1Ll5@projektioi.o1jsd.mongodb.net/?retryWrites=true&w=majority&appName=projektIOI")
@@ -20,7 +21,6 @@ FILE_ID = "1n8TBfw2Yckn_Xm_r4asvfdXtbHQ6vkt0"
 API_KEY = "AIzaSyCI9KszVXQ6usHwf5Fn8RjCW5JfQ4sjkus"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, 'painting_recognition_model.h5')
-REACT_APP_BACKEND_URL="https://flaskioi.onrender.com"
 
 def download_model(file_id, path, api_key):
     """Download the model file from Google Drive using the API."""
