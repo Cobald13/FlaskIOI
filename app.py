@@ -8,8 +8,9 @@ import os
 import requests
 
 app = Flask(__name__)
-CORS(app)
-CORS(app, resources={r"/*": {"origins": "https://reactioi.onrender.com"}})
+
+# Configure CORS to allow requests from specific origins
+CORS(app, resources={r"/*": {"origins": ["https://reactioi.onrender.com", "http://localhost:3000"]}})
 
 # MongoDB Atlas connection string
 client = MongoClient("mongodb+srv://Cobald13:Mp5K1Ll5@projektioi.o1jsd.mongodb.net/?retryWrites=true&w=majority&appName=projektIOI")
@@ -152,4 +153,6 @@ def recognize_painting():
             os.remove(file_path)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
+    import os
+    port = int(os.environ.get('PORT', 10000))  # Default to 10000 if no PORT is set
+    app.run(host='0.0.0.0', port=port, debug=True)
