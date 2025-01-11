@@ -20,6 +20,7 @@ FILE_ID = "1n8TBfw2Yckn_Xm_r4asvfdXtbHQ6vkt0"
 API_KEY = "AIzaSyCI9KszVXQ6usHwf5Fn8RjCW5JfQ4sjkus"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, 'painting_recognition_model.h5')
+REACT_APP_BACKEND_URL="https://flaskioi.onrender.com"
 
 def download_model(file_id, path, api_key):
     """Download the model file from Google Drive using the API."""
@@ -60,6 +61,16 @@ download_model(FILE_ID, MODEL_PATH, API_KEY)
 # Load the model
 model = tf.keras.models.load_model(MODEL_PATH)
 
+def verify_h5_file(path):
+    try:
+        tf.keras.models.load_model(path)
+        return True
+    except Exception as e:
+        print(f"File verification failed: {e}")
+        return False
+
+verify_h5_file(MODEL_PATH)
+
 # **CLASS_TO_ID_MAP**
 # This mapping links the model's predicted class indices to MongoDB `_id` values for painters
 CLASS_TO_ID_MAP = {
@@ -95,10 +106,12 @@ def get_painter(painter_id):
 @app.route('/recognize', methods=['POST'])
 def recognize_painting():
     if 'file' not in request.files:
+        print("No file found in request")
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files['file']
     if file.filename == '':
+        print("Empty file selected")
         return jsonify({"error": "No file selected"}), 400
 
     try:
@@ -106,19 +119,18 @@ def recognize_painting():
         file_path = os.path.join('temp', file.filename)
         os.makedirs('temp', exist_ok=True)
         file.save(file_path)
+        print(f"File saved at {file_path}")
 
         # Preprocess the image and make predictions
         img_array = preprocess_image(file_path)
         predictions = model.predict(img_array)
         predicted_class = int(np.argmax(predictions, axis=1)[0])  # Convert np.int64 to Python int
-
-        # Log predictions for debugging
-        print(f"Predictions: {predictions}")
-        print(f"Predicted class: {predicted_class}")
+        print(f"Predictions: {predictions}, Predicted class: {predicted_class}")
 
         # Map the predicted class to the painter's `_id`
         painter_id = CLASS_TO_ID_MAP.get(predicted_class)
         if not painter_id:
+            print("Painter not recognized")
             return jsonify({"error": "Painter not recognized"}), 404
 
         # Query the database using the `_id`
@@ -127,6 +139,7 @@ def recognize_painting():
             painter['_id'] = str(painter['_id'])  # Convert _id to string
             return jsonify(painter)
 
+        print("Painter not found in database")
         return jsonify({"error": "Painter not found in database"}), 404
 
     except Exception as e:
@@ -139,4 +152,4 @@ def recognize_painting():
             os.remove(file_path)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
