@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -15,20 +16,48 @@ db = client['IOI']  # Replace with your database name
 painters_collection = db['Slikarji']  # Replace with your collection name
 
 # Load the pre-trained model
-MODEL_URL = "https://drive.google.com/uc?export=download&id=1WiuO_akiNN2YOVrW52Q4G1yNqbkleOlD"
-MODEL_PATH = 'painting_recognition_model.h5'
+FILE_ID = "1n8TBfw2Yckn_Xm_r4asvfdXtbHQ6vkt0"
+API_KEY = "AIzaSyCI9KszVXQ6usHwf5Fn8RjCW5JfQ4sjkus"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'painting_recognition_model.h5')
 
-# Download the model if it's not already cached locally
-if not os.path.exists(MODEL_PATH):
-    print("Downloading model from Google Drive...")
-    response = requests.get(MODEL_URL)
-    if response.status_code == 200:
-        with open(MODEL_PATH, "wb") as f:
-            f.write(response.content)
-        print("Model downloaded and saved.")
+def download_model(file_id, path, api_key):
+    """Download the model file from Google Drive using the API."""
+    if not os.path.exists(path):
+        print("Downloading model from Google Drive via API...")
+        url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media&key={api_key}"
+
+        # Perform the request and download the file in chunks
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            with open(path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=32768):
+                    if chunk:
+                        f.write(chunk)
+            print("Model downloaded and saved.")
+
+            # Verify the file format
+            if not verify_h5_file(path):
+                os.remove(path)  # Delete invalid file
+                raise ValueError("Downloaded file is not a valid .h5 file.")
+        else:
+            raise Exception(f"Failed to download file. HTTP Status Code: {response.status_code}")
     else:
-        print("Failed to download the model. Status code:", response.status_code)
-        
+        print("Model already exists.")
+
+def verify_h5_file(path):
+    """Check if the file is a valid HDF5 model file."""
+    try:
+        tf.keras.models.load_model(path)
+        return True
+    except Exception as e:
+        print(f"File verification failed: {e}")
+        return False
+
+# Download the model if needed
+download_model(FILE_ID, MODEL_PATH, API_KEY)
+
+# Load the model
 model = tf.keras.models.load_model(MODEL_PATH)
 
 # **CLASS_TO_ID_MAP**
