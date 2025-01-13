@@ -1,5 +1,7 @@
 # Flask spletna aplikacija - backend
 
+Povezava do predstavitve [https://drive.google.com/file/d/1jEyVU3gHlEwO5Y2f0YPyTMc5LNg8OIeG/view?usp=sharing]
+
 Flask aplikacija skrbi za backend - razpoznava slik, usmerjanje po spletni strani, prikazovanje slik in videov.
 Ker se v flask aplikaciji izvajajo modeli strojnega učenja za razpoznavo slik, aplikacije za razliko od React frontenda ni bilo mogoče gostovati na brezplačni različici platforme Render.
 Zato je potrebno lokalno izvajanje na lokalni napravi in potem t.i. port forwarding, ki omogoča, da je backend aplikacija dostopna iz zunanjega spleta.
