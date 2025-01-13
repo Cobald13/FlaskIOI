@@ -75,9 +75,21 @@ verify_h5_file(MODEL_PATH)
 # **CLASS_TO_ID_MAP**
 # This mapping links the model's predicted class indices to MongoDB `_id` values for painters
 CLASS_TO_ID_MAP = {
-    0: "kobilca",   # Class index 0 corresponds to Ivana Kobilca
-    1: "kobilca",    # Add corresponding mappings for other painters
-    2: "kobilca"    # Example mapping for Rihard Jakopič
+    0: "kofetarica",
+    1: "poletje",
+    2: "fani",
+    3: "otroci_druzine_buchler",
+    4: "doma",
+    5: "nismo_poslednji"
+}
+
+PAINTING_TO_PAINTER_MAP = {
+    "kofetarica": "kobilca",
+    "poletje": "kobilca",
+    "fani": "kobilca",
+    "nismo_poslednji": "music",
+    "doma": "petkovsek",
+    "otroci_druzine_buchler": "tominc"
 }
 
 # Helper function to process the image
@@ -125,23 +137,31 @@ def recognize_painting():
         # Preprocess the image and make predictions
         img_array = preprocess_image(file_path)
         predictions = model.predict(img_array)
-        predicted_class = int(np.argmax(predictions, axis=1)[0])  # Convert np.int64 to Python int
-        print(f"Predictions: {predictions}, Predicted class: {predicted_class}")
+        print(f"Predictions Array: {predictions}")
 
-        # Map the predicted class to the painter's `_id`
-        painter_id = CLASS_TO_ID_MAP.get(predicted_class)
+        predicted_class = int(np.argmax(predictions, axis=1)[0])
+        print(f"Predicted Class: {predicted_class}")
+
+        # Map predicted class to painting ID
+        painting_id = CLASS_TO_ID_MAP.get(predicted_class)
+        print(f"Painting ID: {painting_id}")
+
+        if not painting_id:
+            print("Painting not recognized")
+            return jsonify({"error": "Painting not recognized"}), 404
+
+        # Map painting ID to painter ID
+        painter_id = PAINTING_TO_PAINTER_MAP.get(painting_id)
+        print(f"Painter ID: {painter_id}")
+
         if not painter_id:
-            print("Painter not recognized")
-            return jsonify({"error": "Painter not recognized"}), 404
+            print("Painter not found")
+            return jsonify({"error": "Painter not found"}), 404
 
-        # Query the database using the `_id`
-        painter = painters_collection.find_one({"_id": painter_id})
-        if painter:
-            painter['_id'] = str(painter['_id'])  # Convert _id to string
-            return jsonify(painter)
-
-        print("Painter not found in database")
-        return jsonify({"error": "Painter not found in database"}), 404
+        return jsonify({
+            "painterId": painter_id,
+            "paintingId": painting_id
+        })
 
     except Exception as e:
         print(f"Error during recognition: {e}")
