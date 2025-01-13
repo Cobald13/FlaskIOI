@@ -5,8 +5,7 @@ Ker se v flask aplikaciji izvajajo modeli strojnega učenja za razpoznavo slik, 
 Zato je potrebno lokalno izvajanje na lokalni napravi in potem t.i. port forwarding, ki omogoča, da je backend aplikacija dostopna iz zunanjega spleta.
 
 ## Ročno poganjanje aplikacije
-Ročno poganjanje backend aplikacije zahteva veliko korakov in strojne opreme, zato vam poganjanje backend aplikacije na lastni napravi odsvetujem. Namesto tega bomo poskrbeli, da se bo backend aplikacija naslednih nekaj tednov izvajala lokalno na eni od naših naprav, potem pa bomo z uporabo ngrok
-poskrbeli za t.i. port forwarding. Tako bo aplikacija dostopna iz povsod, kot bi jo gostovali na platformi Render.
+Ročno poganjanje backend aplikacije zahteva več korakov in določene sistemske zahteve, zato odsvetujemo, da jo poganjate na lastni napravi. Namesto tega bomo poskrbeli, da se bo backend aplikacija v prihodnjih nekaj tednih izvajala stabilno na eni od naših naprav. Za omogočanje dostopa bomo uporabili orodje ngrok, ki omogoča t.i. port forwarding. Tako bo aplikacija dostopna od koder koli, podobno kot če bi bila gostovana na platformi, kot je Render.
 
 ## Ročno poganjanje aplikacije - nadaljevanje
 
