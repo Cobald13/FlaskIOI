@@ -6,20 +6,23 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-backendUrl = 'https://pure-chicken-urgently.ngrok-free.app'
+backendUrl = os.getenv('BACKEND_URL')
+MONGO_URI = os.getenv('MONGO_URI')
+FILE_ID = os.getenv('FILE_ID')
+API_KEY = os.getenv('API_KEY')
 
 # MongoDB Atlas connection string
-client = MongoClient("mongodb+srv://Cobald13:Mp5K1Ll5@projektioi.o1jsd.mongodb.net/?retryWrites=true&w=majority&appName=projektIOI")
+client = MongoClient(MONGO_URI)
 db = client['IOI']  # Replace with your database name
 painters_collection = db['Slikarji']  # Replace with your collection name
 
-# Load the pre-trained model
-FILE_ID = "1n8TBfw2Yckn_Xm_r4asvfdXtbHQ6vkt0"
-API_KEY = "AIzaSyCI9KszVXQ6usHwf5Fn8RjCW5JfQ4sjkus"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, 'painting_recognition_model.h5')
 
